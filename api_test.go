@@ -12,13 +12,13 @@ func Test_Errorf(t *testing.T) {
 	t.Run("no fields attached", func(t *testing.T) {
 		err := Errorf("some error")
 		if err == nil {
-			t.Fatal("unexpectedli Errorf returned nil error")
+			t.Fatal("unexpectedly Errorf returned nil error")
 		}
 		if n := len(Fields(err)); n != 0 {
 			t.Errorf("unexpectedly error has %d fields attached", n)
 		}
 		if n := errChainLen(err); n != 2 {
-			t.Errorf("expected chain lenght 2, got %d", n)
+			t.Errorf("expected chain length 2, got %d", n)
 		}
 	})
 
@@ -26,7 +26,7 @@ func Test_Errorf(t *testing.T) {
 		err := Errorf("some error").AddField("field1", 1)
 		flds := Fields(err)
 		if n := len(flds); n != 1 {
-			t.Errorf("expecte that error has %d fields attached, got %d", 1, n)
+			t.Errorf("expected that error has %d fields attached, got %d", 1, n)
 		} else {
 			containsField(t, flds, "field1", 1)
 		}
@@ -34,7 +34,7 @@ func Test_Errorf(t *testing.T) {
 		expectFieldValue(t, err, "field1", 1)
 
 		if n := errChainLen(err); n != 2 {
-			t.Errorf("expected chain lenght 2, got %d", n)
+			t.Errorf("expected chain length 2, got %d", n)
 		}
 	})
 
@@ -43,7 +43,7 @@ func Test_Errorf(t *testing.T) {
 
 		flds := Fields(err)
 		if n := len(flds); n != 2 {
-			t.Errorf("expecte that error has %d fields attached, got %d", 2, n)
+			t.Errorf("expected that error has %d fields attached, got %d", 2, n)
 		} else {
 			containsField(t, flds, "field1", 11)
 			containsField(t, flds, "field2", 12)
@@ -53,7 +53,7 @@ func Test_Errorf(t *testing.T) {
 		expectFieldValue(t, err, "field2", 12)
 
 		if n := errChainLen(err); n != 2 {
-			t.Errorf("expected chain lenght 2, got %d", n)
+			t.Errorf("expected chain length 2, got %d", n)
 		}
 	})
 
@@ -63,7 +63,7 @@ func Test_Errorf(t *testing.T) {
 
 		flds := Fields(err)
 		if n := len(flds); n != 2 {
-			t.Errorf("expecte that error has %d fields attached, got %d", 2, n)
+			t.Errorf("expected that error has %d fields attached, got %d", 2, n)
 		} else {
 			containsField(t, flds, "field1", 11)
 			containsField(t, flds, "field2", 12)
@@ -73,7 +73,7 @@ func Test_Errorf(t *testing.T) {
 		expectFieldValue(t, err, "field2", 12)
 
 		if n := errChainLen(err); n != 4 {
-			t.Errorf("expected chain lenght 4, got %d", n)
+			t.Errorf("expected chain length 4, got %d", n)
 		}
 	})
 }
@@ -81,12 +81,12 @@ func Test_Errorf(t *testing.T) {
 func Test_AddField(t *testing.T) {
 	t.Parallel()
 
-	t.Run("nil error as imput", func(t *testing.T) {
+	t.Run("nil error as input", func(t *testing.T) {
 		err := AddField(nil, "fieldA", 1)
 
 		flds := Fields(err)
 		if n := len(flds); n != 1 {
-			t.Errorf("expecte that error has %d fields attached, got %d", 1, n)
+			t.Errorf("expected that error has %d fields attached, got %d", 1, n)
 		} else {
 			containsField(t, flds, "fieldA", 1)
 		}
@@ -94,7 +94,7 @@ func Test_AddField(t *testing.T) {
 		expectFieldValue(t, err, "fieldA", 1)
 
 		if n := errChainLen(err); n != 1 {
-			t.Errorf("expected chain lenght 1, got %d", n)
+			t.Errorf("expected chain length 1, got %d", n)
 		}
 	})
 
@@ -104,7 +104,7 @@ func Test_AddField(t *testing.T) {
 
 		flds := Fields(err)
 		if n := len(flds); n != 1 {
-			t.Errorf("expecte that error has %d fields attached, got %d", 0, n)
+			t.Errorf("expected that error has %d fields attached, got %d", 0, n)
 		} else {
 			containsField(t, flds, "fieldA", 1)
 		}
@@ -112,7 +112,7 @@ func Test_AddField(t *testing.T) {
 		expectFieldValue(t, err, "fieldA", 1)
 
 		if n := errChainLen(err); n != 2 {
-			t.Errorf("expected chain lenght 2, got %d", n)
+			t.Errorf("expected chain length 2, got %d", n)
 		} else {
 			if !errors.Is(err, origErr) {
 				t.Error("errors.Is doesn't detect the wrapped error")
@@ -126,7 +126,7 @@ func Test_AddField(t *testing.T) {
 
 		flds := Fields(err)
 		if n := len(flds); n != 1 {
-			t.Errorf("expecte that error has %d fields attached, got %d", 0, n)
+			t.Errorf("expected that error has %d fields attached, got %d", 0, n)
 		} else {
 			containsField(t, flds, "fieldA", 1)
 		}
@@ -134,7 +134,7 @@ func Test_AddField(t *testing.T) {
 		expectFieldValue(t, err, "fieldA", 1)
 
 		if n := errChainLen(err); n != 2 {
-			t.Errorf("expected chain lenght 2, got %d", n)
+			t.Errorf("expected chain length 2, got %d", n)
 		} else {
 			if !errors.Is(err, origErr) {
 				t.Error("errors.Is doesn't detect the wrapped error")
@@ -148,7 +148,7 @@ func Test_AddField(t *testing.T) {
 
 		flds := Fields(err)
 		if n := len(flds); n != 2 {
-			t.Errorf("expecte that error has %d fields attached, got %d", 2, n)
+			t.Errorf("expected that error has %d fields attached, got %d", 2, n)
 		} else {
 			containsField(t, flds, "fieldA", 1)
 			containsField(t, flds, "fieldB", 2)
@@ -158,7 +158,7 @@ func Test_AddField(t *testing.T) {
 		expectFieldValue(t, err, "fieldB", 2)
 
 		if n := errChainLen(err); n != 2 {
-			t.Errorf("expected chain lenght 2, got %d", n)
+			t.Errorf("expected chain length 2, got %d", n)
 		} else {
 			if !errors.Is(err, origErr) {
 				t.Error("errors.Is doesn't detect the wrapped error")
@@ -166,14 +166,14 @@ func Test_AddField(t *testing.T) {
 		}
 	})
 
-	t.Run("AddFeld called twice", func(t *testing.T) {
+	t.Run("AddField called twice", func(t *testing.T) {
 		origErr := fmt.Errorf("some error")
 		exErr := AddField(origErr, "fieldA", 1)
 		err := AddField(exErr, "fieldB", 2)
 
 		flds := Fields(err)
 		if n := len(flds); n != 2 {
-			t.Errorf("expecte that error has %d fields attached, got %d", 2, n)
+			t.Errorf("expected that error has %d fields attached, got %d", 2, n)
 		} else {
 			containsField(t, flds, "fieldA", 1)
 			containsField(t, flds, "fieldB", 2)
@@ -183,7 +183,7 @@ func Test_AddField(t *testing.T) {
 		expectFieldValue(t, err, "fieldB", 2)
 
 		if n := errChainLen(err); n != 2 {
-			t.Errorf("expected chain lenght 2, got %d", n)
+			t.Errorf("expected chain length 2, got %d", n)
 		} else {
 			if !errors.Is(err, origErr) {
 				t.Error("errors.Is doesn't detect the wrapped error")
@@ -194,13 +194,13 @@ func Test_AddField(t *testing.T) {
 		}
 	})
 
-	t.Run("AddFeld chained", func(t *testing.T) {
+	t.Run("AddField chained", func(t *testing.T) {
 		origErr := Errorf("some error").AddField("fieldB", 2)
 		err := AddField(origErr, "fieldA", 1).AddField("fieldC", 3)
 
 		flds := Fields(err)
 		if n := len(flds); n != 3 {
-			t.Errorf("expecte that error has %d fields attached, got %d", 3, n)
+			t.Errorf("expected that error has %d fields attached, got %d", 3, n)
 		} else {
 			containsField(t, flds, "fieldA", 1)
 			containsField(t, flds, "fieldB", 2)
@@ -212,7 +212,7 @@ func Test_AddField(t *testing.T) {
 		expectFieldValue(t, err, "fieldC", 3)
 
 		if n := errChainLen(err); n != 2 {
-			t.Errorf("expected chain lenght 2, got %d", n)
+			t.Errorf("expected chain length 2, got %d", n)
 		} else {
 			if !errors.Is(err, origErr) {
 				t.Error("errors.Is doesn't detect the wrapped error")

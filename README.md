@@ -26,7 +26,7 @@ query := "select x, y, z from t where i=? and k=?"
 qparam := []interface{}{42, "foo"}
 rows, err := db.QueryContext(ctx, query, qparam...)
 if err != nil {
-	return Errorf("failed to open query: %w", err).AddField("sql_query", query).AddField("sql_param", qparam)
+	return exerr.Errorf("failed to open query: %w", err).AddField("sql_query", query).AddField("sql_param", qparam)
 }
 ```
 
@@ -39,7 +39,7 @@ to the error every time it is handled) it is easy to start from the log site and
 chain" to the place error originates from. Doing it that way (rather than having the stack trace
 of the first error) gives me much better understanding what happened and what went wrong...
 
-Some thirdparty error libraries have methods like `err.WithStack()` to record that information but I
+Some third-party error libraries have methods like `err.WithStack()` to record that information but I
 do not like that. So errors created with this library capture the stack by default and make it
 available for loggers via helper methods.
 
@@ -47,5 +47,5 @@ available for loggers via helper methods.
 
  - integrate with [slog](https://pkg.go.dev/golang.org/x/exp/slog);
  - more flexible stack formatting;
- - unwrap behaviour - currently Errorf results as two errors in the chain, should it behave like single error?
- - intergration with popular log libraries;
+ - unwrap behavior - currently `Errorf` results as two errors in the chain, should it behave like single error?
+ - integration with popular log libraries;

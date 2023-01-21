@@ -122,14 +122,14 @@ func Test_Fields(t *testing.T) {
 
 		flds := Fields(err)
 		if n := len(flds); n != 0 {
-			t.Errorf("expecte that error has %d fields attached, got %d", 0, n)
+			t.Errorf("expected that error has %d fields attached, got %d", 0, n)
 		}
 	})
 
 	t.Run("nil error", func(t *testing.T) {
 		flds := Fields(nil)
 		if n := len(flds); n != 0 {
-			t.Errorf("expecte that error has %d fields attached, got %d", 0, n)
+			t.Errorf("expected that error has %d fields attached, got %d", 0, n)
 		}
 	})
 
@@ -138,7 +138,7 @@ func Test_Fields(t *testing.T) {
 
 		flds := Fields(err)
 		if n := len(flds); n != 0 {
-			t.Errorf("expecte that error has %d fields attached, got %d", 0, n)
+			t.Errorf("expected that error has %d fields attached, got %d", 0, n)
 		}
 	})
 
@@ -147,7 +147,7 @@ func Test_Fields(t *testing.T) {
 
 		flds := Fields(err)
 		if n := len(flds); n != 1 {
-			t.Errorf("expecte that error has %d fields attached, got %d", 1, n)
+			t.Errorf("expected that error has %d fields attached, got %d", 1, n)
 		}
 
 		v, ok := flds["field"]
@@ -163,7 +163,7 @@ func Test_Fields(t *testing.T) {
 
 		flds := Fields(err)
 		if n := len(flds); n != 2 {
-			t.Errorf("expecte that error has %d fields attached, got %d", 2, n)
+			t.Errorf("expected that error has %d fields attached, got %d", 2, n)
 		}
 
 		if v, ok := flds["A"]; !ok {
