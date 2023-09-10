@@ -42,8 +42,7 @@ method and if it does call it.
 func Fields(err error) map[string]any {
 	var f map[string]any
 	for err != nil {
-		fv, ok := err.(interface{ Fields() map[string]any })
-		if ok {
+		if fv, ok := err.(interface{ Fields() map[string]any }); ok {
 			if f == nil {
 				f = make(map[string]any)
 			}
@@ -64,14 +63,16 @@ type stacked interface {
 func Stack(err error) []string {
 	var se stacked
 	for err != nil {
-		s, ok := err.(stacked)
-		if ok {
+		if s, ok := err.(stacked); ok {
 			se = s
 		}
-
 		err = errors.Unwrap(err)
 	}
-	return formatStack(se.Stack())
+
+	if se != nil {
+		return formatStack(se.Stack())
+	}
+	return nil
 }
 
 func formatStack(pcs []uintptr) (r []string) {

@@ -1,12 +1,13 @@
 package exerr
 
 import (
+	"errors"
 	"runtime"
 )
 
 func newExErr(err error) *exErr {
-	pcs := make([]uintptr, 16)
-	n := runtime.Callers(3, pcs)
+	pcs := make([]uintptr, 32)
+	n := runtime.Callers(3, pcs) // 1=newExErr; 2=Errorf|AddField|New; 3=user code
 	return &exErr{err: err, pcs: pcs[:n:n]}
 }
 
@@ -17,7 +18,11 @@ type exErr struct {
 	fields map[string]any
 }
 
-func (e *exErr) Unwrap() error { return e.err }
+func (e *exErr) As(target any) bool { return errors.As(e.err, target) }
+
+func (e *exErr) Is(target error) bool { return errors.Is(e.err, target) }
+
+func (e *exErr) Unwrap() error { return errors.Unwrap(e.err) }
 
 func (e *exErr) Error() string {
 	if e.err == nil {
@@ -40,6 +45,11 @@ func (e *exErr) FieldValue(name string) (any, bool) {
 	return v, ok
 }
 
+/*
+Fields returns the name -> value map of the fields attached to the error.
+
+Should be considered to be read-only, ie do not modify!
+*/
 func (e *exErr) Fields() map[string]any { return e.fields }
 
 /*

@@ -1,7 +1,9 @@
 package exerr
 
 import (
+	"errors"
 	"fmt"
+	"net"
 	"testing"
 )
 
@@ -25,11 +27,15 @@ func Test_newExErr(t *testing.T) {
 			t.Fatal("unexpectedly e.pcs is not assigned")
 		}
 		if len(e.pcs) != len(e.Stack()) {
-			t.Fatal("unexpectedly e.Stack() returns slice with different length")
+			t.Fatalf("unexpectedly e.Stack() returns slice with different length (%d vs %d)", len(e.pcs), len(e.Stack()))
 		}
 
 		if e.Error() != "<nil>" {
-			t.Fatalf(`expected "<nil>" got %q`, e.Error())
+			t.Fatalf(`expected error message to be "<nil>" got %q`, e.Error())
+		}
+
+		if e.fields != nil {
+			t.Fatal("unexpectedly e.fields is not nil")
 		}
 	})
 
@@ -43,7 +49,7 @@ func Test_newExErr(t *testing.T) {
 		if e.err != expErr {
 			t.Fatal("unexpectedly e.err is not the error passed to the constructor")
 		}
-		if e.err != e.Unwrap() {
+		if e.Unwrap() != nil {
 			t.Fatal("Unwrap returns unexpected value")
 		}
 
@@ -56,6 +62,10 @@ func Test_newExErr(t *testing.T) {
 
 		if e.Error() != expErr.Error() {
 			t.Fatalf(`expected %q got %q`, expErr.Error(), e.Error())
+		}
+
+		if e.fields != nil {
+			t.Fatal("unexpectedly e.fields is not nil")
 		}
 	})
 }
@@ -153,6 +163,118 @@ func Test_exErr_FieldValue(t *testing.T) {
 		}
 		if v != 42 {
 			t.Errorf("expected value to be 42, got %v", v)
+		}
+	})
+}
+
+func Test_exErr_Is(t *testing.T) {
+	t.Parallel()
+	// exerr acts as a container so Is, As and Unwrap should skip it and return the wrapped error
+
+	t.Run("wrapping nil error", func(t *testing.T) {
+		e := newExErr(nil)
+		if e == nil {
+			t.Fatal("unexpectedly nil was returned")
+		}
+		if !e.Is(nil) {
+			t.Fatal("Is returns unexpected value")
+		}
+		if e.Is(e) {
+			t.Fatal("Is returns unexpected value")
+		}
+	})
+
+	t.Run("wrapping non-nil error", func(t *testing.T) {
+		expErr := fmt.Errorf("some error")
+		e := newExErr(expErr)
+		if !e.Is(expErr) {
+			t.Fatal("Is returns unexpected value")
+		}
+		if e.Is(e) {
+			t.Fatal("Is returns unexpected value")
+		}
+	})
+}
+
+func Test_errors_Is(t *testing.T) {
+	t.Parallel()
+	// test that errors.Is returns expected results
+
+	t.Run("nil error", func(t *testing.T) {
+		var e *exErr
+		if errors.Is(e, nil) {
+			t.Fatal("errors.Is returns unexpected value")
+		}
+	})
+
+	t.Run("errors.Is(self, self)", func(t *testing.T) {
+		err := Errorf("foobar")
+		if !errors.Is(err, err) {
+			t.Error("unexpected")
+		}
+	})
+
+	t.Run("errors.Is detects error wrapped to exErr", func(t *testing.T) {
+		ee := &net.OpError{}
+		err := Errorf("foobar: %w", ee)
+		if !errors.Is(err, ee) {
+			t.Error("unexpected")
+		}
+	})
+
+	t.Run("errors.Is detects exErr wrapped to error", func(t *testing.T) {
+		ee := Errorf("exErr")
+		err := fmt.Errorf("stderr: %w", ee)
+		if !errors.Is(err, ee) {
+			t.Error("unexpected")
+		}
+	})
+
+	t.Run("errors.Is detects exErr wrapped to exErr", func(t *testing.T) {
+		ee := Errorf("exErr")
+		err := Errorf("other error: %w", ee)
+		if !errors.Is(err, ee) {
+			t.Error("unexpected")
+		}
+	})
+}
+
+func Test_errors_As(t *testing.T) {
+	t.Parallel()
+	// test that errors.As returns expected results
+
+	t.Run("error implements interface", func(t *testing.T) {
+		err := Errorf("foobar")
+		var se stacked
+		if !errors.As(err, &se) {
+			t.Error("unexpected")
+		}
+	})
+
+	t.Run("error doesn't implement the interface", func(t *testing.T) {
+		err := Errorf("foobar")
+		var se interface{ Foo() }
+		if errors.As(err, &se) {
+			t.Error("unexpected")
+		}
+	})
+
+	t.Run("wrapped error implements the interface", func(t *testing.T) {
+		err := fmt.Errorf("err 0: %w", Errorf("foobar"))
+		var se stacked
+		if !errors.As(err, &se) {
+			t.Error("unexpected")
+		}
+		if len(se.Stack()) == 0 {
+			t.Error("unexpected")
+		}
+	})
+
+	t.Run("error is of type", func(t *testing.T) {
+		err := Errorf("foobar")
+		ee := &exErr{}
+		if !errors.As(err, &ee) {
+			t.Error("unexpected")
 		}
 	})
 }
