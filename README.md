@@ -45,7 +45,6 @@ available for loggers via helper methods.
 
 ## Possible improvements
 
- - integrate with [slog](https://pkg.go.dev/golang.org/x/exp/slog);
+ - use [slog.Attr](https://pkg.go.dev/log/slog) for fields;
  - more flexible stack formatting;
- - unwrap behavior - currently `Errorf` results as two errors in the chain, should it behave like single error?
  - integration with popular log libraries;

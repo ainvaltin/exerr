@@ -53,6 +53,6 @@ Should be considered to be read-only, ie do not modify!
 func (e *exErr) Fields() map[string]any { return e.fields }
 
 /*
-Stack returns return program counters of function invocations on the the place error was created.
+PC returns return program counters of function invocations on the the place error was created.
 */
-func (e *exErr) Stack() []uintptr { return e.pcs }
+func (e *exErr) PC() []uintptr { return e.pcs }

@@ -26,8 +26,8 @@ func Test_newExErr(t *testing.T) {
 		if len(e.pcs) == 0 {
 			t.Fatal("unexpectedly e.pcs is not assigned")
 		}
-		if len(e.pcs) != len(e.Stack()) {
-			t.Fatalf("unexpectedly e.Stack() returns slice with different length (%d vs %d)", len(e.pcs), len(e.Stack()))
+		if len(e.pcs) != len(e.PC()) {
+			t.Fatalf("unexpectedly e.PC() returns slice with different length (%d vs %d)", len(e.pcs), len(e.PC()))
 		}
 
 		if e.Error() != "<nil>" {
@@ -56,8 +56,8 @@ func Test_newExErr(t *testing.T) {
 		if len(e.pcs) == 0 {
 			t.Fatal("unexpectedly e.pcs is not assigned")
 		}
-		if len(e.pcs) != len(e.Stack()) {
-			t.Fatal("unexpectedly e.Stack() returns slice with different length")
+		if len(e.pcs) != len(e.PC()) {
+			t.Fatal("unexpectedly e.PC() returns slice with different length")
 		}
 
 		if e.Error() != expErr.Error() {
@@ -265,7 +265,7 @@ func Test_errors_As(t *testing.T) {
 		if !errors.As(err, &se) {
 			t.Error("unexpected")
 		}
-		if len(se.Stack()) == 0 {
+		if len(se.PC()) == 0 {
 			t.Error("unexpected")
 		}
 	})

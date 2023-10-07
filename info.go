@@ -15,15 +15,12 @@ To check does only this particular err have the field check does it implement
 method and if it does call it.
 */
 func FieldValue(err error, name string) (value any, ok bool) {
-	for err != nil {
-		fv, ok := err.(interface{ FieldValue(name string) (any, bool) })
-		if ok {
+	for ; err != nil; err = errors.Unwrap(err) {
+		if fv, ok := err.(interface{ FieldValue(name string) (any, bool) }); ok {
 			if v, ok := fv.FieldValue(name); ok {
 				return v, true
 			}
 		}
-
-		err = errors.Unwrap(err)
 	}
 
 	return nil, false
@@ -41,7 +38,7 @@ method and if it does call it.
 */
 func Fields(err error) map[string]any {
 	var f map[string]any
-	for err != nil {
+	for ; err != nil; err = errors.Unwrap(err) {
 		if fv, ok := err.(interface{ Fields() map[string]any }); ok {
 			if f == nil {
 				f = make(map[string]any)
@@ -50,27 +47,25 @@ func Fields(err error) map[string]any {
 				f[k] = v
 			}
 		}
-		err = errors.Unwrap(err)
 	}
 
 	return f
 }
 
 type stacked interface {
-	Stack() []uintptr
+	PC() []uintptr
 }
 
 func Stack(err error) []string {
 	var se stacked
-	for err != nil {
+	for ; err != nil; err = errors.Unwrap(err) {
 		if s, ok := err.(stacked); ok {
 			se = s
 		}
-		err = errors.Unwrap(err)
 	}
 
 	if se != nil {
-		return formatStack(se.Stack())
+		return formatStack(se.PC())
 	}
 	return nil
 }
@@ -79,7 +74,7 @@ func formatStack(pcs []uintptr) (r []string) {
 	frames := runtime.CallersFrames(pcs)
 	for {
 		frame, more := frames.Next()
-		r = append(r, fmt.Sprintf("%s (%s : %d)", frame.Function, frame.File, frame.Line))
+		r = append(r, fmt.Sprintf("%s (%s:%d)", frame.Function, frame.File, frame.Line))
 		if !more {
 			break
 		}
