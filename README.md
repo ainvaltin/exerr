@@ -19,7 +19,7 @@ and it's parameters available in addition to the error message but adding them t
 the message is generally not acceptable.
 
 Usually this means that the extra info is logged at the error site and error
-returned to he caller, to be logged (again) at some point up in the call chain.
+returned to the caller, to be logged (again) at some point up in the call chain.
 This means that when investigating the error one has somehow realize that these
 two log records describe the same incident...
 
@@ -48,9 +48,9 @@ handle them gracefully"_. Among other things this means that when error is
 passed up to the caller context is added to it using `fmt.Errorf`. This
 additional context makes it usually easy enough to follow the error path from
 the know location where it was logged down to the error site. 
-Still there are developers who would like to have stack trace of error.
+Still there are developers who would like to have stack trace of the error.
 
-Errors created by this library (ie `exerr.New` and `exerr.Errorf`) also record
+Errors created by this library (ie `exerr.New` and `exerr.Errorf`) capture
 the source code location so that stack trace can be logged when logging the
 error. 
 
