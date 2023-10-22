@@ -6,6 +6,39 @@ import (
 	"testing"
 )
 
+func Test_New(t *testing.T) {
+	t.Parallel()
+
+	t.Run("no fields attached", func(t *testing.T) {
+		err := New("some error")
+		if err == nil {
+			t.Fatal("unexpectedly New returned nil error")
+		}
+		if n := len(Fields(err)); n != 0 {
+			t.Errorf("unexpectedly error has %d fields attached", n)
+		}
+		if n := errChainLen(err); n != 1 {
+			t.Errorf("expected chain length 1, got %d", n)
+		}
+	})
+
+	t.Run("one field attached", func(t *testing.T) {
+		err := Errorf("some error").AddField("field1", 1)
+		flds := Fields(err)
+		if n := len(flds); n != 1 {
+			t.Errorf("expected that error has %d fields attached, got %d", 1, n)
+		} else {
+			containsField(t, flds, "field1", 1)
+		}
+
+		expectFieldValue(t, err, "field1", 1)
+
+		if n := errChainLen(err); n != 1 {
+			t.Errorf("expected chain length 1, got %d", n)
+		}
+	})
+}
+
 func Test_Errorf(t *testing.T) {
 	t.Parallel()
 

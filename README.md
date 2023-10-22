@@ -9,39 +9,54 @@ while being as "stdlib like" as possible.
 
 ## Attaching additional data to a error
 
-Main problem I have with logging / error handling is that I like to have logging only in the
-"top level handler" but sometimes it would be useful to log some additional info with the error
-(without having that info in the error message). Good example is when database query fails - it would
-be nice to log the query and it's parameters with the error but not as part of the error message.
+One problem with error handling and logging is that sometimes there is additional
+information available at the place where the error happens which isn't suitable
+to be included into error message but which would be useful when investigating
+the error.
 
-Obvious solution is to log the query in the method where database is accessed but this has two problems:
-1. need to have logger available in the method (ie dependency must be passed down);
-2. we then have two "detached" messages in the log while I'd prefer to have a single log entry for each failure;
+An example would be failing database query ‒ it's useful to have the SQL statement
+and it's parameters available in addition to the error message but adding them to
+the message is generally not acceptable.
 
-So to solve this problem this package implements error type which has a option to attach "fields" to it
-which are not visible in the error message but which can be logged by a logger.
+Usually this means that the extra info is logged at the error site and error
+returned to he caller, to be logged (again) at some point up in the call chain.
+This means that when investigating the error one has somehow realize that these
+two log records describe the same incident...
+
+To solve the problem this package implements error type which has a option to
+attach "fields" to it which are not visible in the error message but which can
+be logged by logger ‒ so now there is no need to log at the error site and thus
+every error gets logged only once.
 
 ```go
 query := "select x, y, z from t where i=? and k=?"
-qparam := []interface{}{42, "foo"}
-rows, err := db.QueryContext(ctx, query, qparam...)
+param := []interface{}{42, "foo"}
+rows, err := db.QueryContext(ctx, query, param...)
 if err != nil {
-	return exerr.Errorf("failed to open query: %w", err).AddField("sql_query", query).AddField("sql_param", qparam)
+	return exerr.Errorf("failed to open query: %w", err).AddField("sql_query", query).AddField("sql_param", param)
 }
 ```
 
+As a bonus the logger doesn't have to be available for the code which deals
+with the database meaning there is one less dependency to pass down!
+
+
 ## Stack trace of the error
 
-In my experience developers coming from languages which use exceptions complain about
-Go errors not having stack trace attached to them. I personally am not bothered by this - I find
-that when I have a trace of the log site and error handling is done properly (ie context is added
-to the error every time it is handled) it is easy to start from the log site and move "down the call
-chain" to the place error originates from. Doing it that way (rather than having the stack trace
-of the first error) gives me much better understanding what happened and what went wrong...
+[Go proverb](https://go-proverbs.github.io/) says _"Don't just check errors,
+handle them gracefully"_. Among other things this means that when error is
+passed up to the caller context is added to it using `fmt.Errorf`. This
+additional context makes it usually easy enough to follow the error path from
+the know location where it was logged down to the error site. 
+Still there are developers who would like to have stack trace of error.
 
-Some third-party error libraries have methods like `err.WithStack()` to record that information but I
-do not like that. So errors created with this library capture the stack by default and make it
-available for loggers via helper methods.
+Errors created by this library (ie `exerr.New` and `exerr.Errorf`) also record
+the source code location so that stack trace can be logged when logging the
+error. 
+
+The stack trace is not included into error message, it has to be logged
+separately (ie logger would have to support this feature).
+
 
 ## Possible improvements
 
